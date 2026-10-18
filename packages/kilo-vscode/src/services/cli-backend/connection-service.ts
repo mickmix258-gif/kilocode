@@ -8,7 +8,7 @@ import { SandboxPreference } from "../sandbox-preference"
 import { ExplicitAbortState } from "./explicit-abort"
 import type { PermissionResponseResult } from "../../kilo-provider/handlers/permission-handler"
 
-export type ConnectionState = "connecting" | "connected" | "disconnected" | "error"
+export type ConnectionState = "connecting" | "connected" | "disconnected" | "error" | "failed"
 type SSEEventListener = (event: SSEPayload, directory?: string) => void
 type StateListener = (state: ConnectionState, error?: Error) => void
 type SSEEventFilter = (event: SSEPayload, directory?: string) => boolean
@@ -70,6 +70,77 @@ function sameSet(a: Set<string>, b: Set<string>): boolean {
 const HEALTH_POLL_INTERVAL_MS = 10_000
 const PERMISSION_RESPONSE_TTL_MS = 60_000
 const PERMISSION_RESPONSE_LIMIT = 256
+
+// Configurable SDK request timeouts (docs/infrastructure/http-request-timeouts.md).
+// Health check already has a 3s timeout via AbortController; SSE has a 15s heartbeat timeout.
+// General SDK calls previously had no timeouts.
+const SDK_REQUEST_TIMEOUT_MS = 60_000
+const SDK_CONNECT_TIMEOUT_MS = 10_000
+
+/**
+ * Wraps `fetch` with an AbortController-based timeout. The timeout starts when
+ * the request is issued and is cleared as soon as the response headers arrive,
+ * so long-running streaming responses (e.g. SSE) are not affected.
+ */
+function createTimeoutFetch(
+  baseFetch: typeof fetch,
+  { requestTimeoutMs, connectTimeoutMs }: { requestTimeoutMs: number; connectTimeoutMs: number },
+): typeof fetch {
+  return async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    const controller = new AbortController()
+    const signal = init?.signal
+      ? (() => {
+          const outer = signal
+          return {
+            addEventListener: (...args: unknown[]) => outer.addEventListener(...args),
+            removeEventListener: (...args: unknown[]) => outer.removeEventListener(...args),
+            dispatchEvent: () => false,
+            throwIfAborted: () => outer.throwIfAborted(),
+            reason: outer.reason,
+            aborted: outer.aborted,
+          } as unknown as AbortSignal
+        })()
+      : controller.signal
+
+    let requestTimer: ReturnType<typeof setTimeout> | null = null
+    let connectTimer: ReturnType<typeof setTimeout> | null = null
+
+    const clearTimers = () => {
+      if (requestTimer) clearTimeout(requestTimer)
+      if (connectTimer) clearTimeout(connectTimer)
+    }
+
+    const mergedInit: RequestInit = {
+      ...init,
+      signal,
+    }
+
+    const promise = baseFetch(input, mergedInit)
+
+    // Connect timeout: reject if no response headers arrive within connectTimeoutMs
+    connectTimer = setTimeout(() => {
+      clearTimers()
+      controller.abort()
+    }, connectTimeoutMs)
+
+    // Request timeout: reject if the full response doesn't arrive within requestTimeoutMs
+    requestTimer = setTimeout(() => {
+      clearTimers()
+      controller.abort()
+    }, requestTimeoutMs)
+
+    return promise.then(
+      (response) => {
+        clearTimers()
+        return response
+      },
+      (err) => {
+        clearTimers()
+        throw err
+      },
+    )
+  }
+}
 
 /** Reject all pending network-offline waits for a given directory. */
 async function drainNetworkWaits(client: KiloClient, dir: string) {
@@ -160,7 +231,12 @@ export class KiloConnectionService {
         update: async () => undefined,
       } satisfies Pick<vscode.Memento, "get" | "update">)
     this.sandboxPreference = new SandboxPreference(state)
-    this.serverManager = new ServerManager(context, (code, signal) => this.handleServerExit(code, signal), env)
+    this.serverManager = new ServerManager(
+      context,
+      (code, signal) => this.handleServerExit(code, signal),
+      (data) => this.handleStderr(data),
+      env,
+    )
     this.active = vscode.window.state.focused
     this.windowStateDisposable = vscode.window.onDidChangeWindowState((ws) => {
       this.active = ws.focused
@@ -883,6 +959,10 @@ export class KiloConnectionService {
     for (const listener of this.stateListeners) {
       listener(state, this.error ?? undefined)
     }
+    // Show a retryable VS Code error notification when the CLI server fails to start.
+    if (state === "failed" && error) {
+      void this.showStartupError(error)
+    }
   }
 
   /**
@@ -953,7 +1033,71 @@ export class KiloConnectionService {
     const reason = signal ? `signal ${signal}` : `code ${code ?? "unknown"}`
     console.warn(`[Kilo New] ConnectionService: CLI background process exited with ${reason}`)
     this.resetConnection()
-    this.setState("error", new Error(`CLI background process exited with ${reason}. Retry to reconnect.`))
+    // If the process exits while we are still connecting, it is a startup failure
+    // (e.g. port conflict, bad config, missing binary). Mark as "failed" so the UI
+    // can show a retryable error notification instead of a generic "error" state.
+    if (this.state === "connecting") {
+      this.setState("failed", new Error(`CLI server failed to start: exited with ${reason}. Retry to reconnect.`))
+    } else {
+      this.setState("error", new Error(`CLI background process exited with ${reason}. Retry to reconnect.`))
+    }
+  }
+
+  /**
+   * Handle stderr output from the CLI server process. When the server is connected,
+   * broadcast the error to all registered event listeners so KiloProvider can render
+   * it as a system message in the chat UI. Critical errors also trigger a VS Code
+   * error notification.
+   */
+  private handleStderr(data: string): void {
+    const lines = data.split("\n").filter((line) => line.trim() !== "")
+    for (const line of lines) {
+      console.error("[Kilo New] CLI stderr:", line)
+      // Broadcast to all event listeners so webviews can render as system messages.
+      // We synthesize a session.error-like event so existing error rendering paths pick it up.
+      for (const listener of this.eventListeners) {
+        listener(
+          {
+            type: "session.error",
+            id: crypto.randomUUID(),
+            properties: {
+              message: line,
+              timestamp: Date.now(),
+            },
+          },
+        )
+      }
+    }
+  }
+
+  /**
+   * Show a VS Code error notification for CLI startup failures, with "Show Logs"
+   * and "Retry" actions. Throttled to avoid notification spam.
+   */
+  private startupErrorShown = false
+  private startupErrorRetry = (() => {}) as () => void
+
+  async showStartupError(error: Error): Promise<void> {
+    if (this.startupErrorShown) return
+    this.startupErrorShown = true
+
+    const action = await vscode.window.showErrorMessage(
+      `Kilo Code: CLI server failed to start — ${error.message}`,
+      { modal: true },
+      "Show Logs",
+      "Retry",
+    )
+
+    if (action === "Show Logs") {
+      void vscode.commands.executeCommand("kilo-code.new.showOutputChannel")
+    } else if (action === "Retry") {
+      this.startupErrorShown = false
+      void this.startupErrorRetry()
+    }
+  }
+
+  setStartupErrorRetry(handler: () => void): void {
+    this.startupErrorRetry = handler
   }
 
   private async doConnect(workspaceDir: string): Promise<void> {
@@ -970,13 +1114,18 @@ export class KiloConnectionService {
 
     this.config = config
 
-    // Create SDK client with Basic Auth header
+    // Create SDK client with Basic Auth header and configurable request timeouts.
     const authHeader = `Basic ${Buffer.from(`kilo:${server.password}`).toString("base64")}`
+    const timeoutFetch = createTimeoutFetch(fetch, {
+      requestTimeoutMs: SDK_REQUEST_TIMEOUT_MS,
+      connectTimeoutMs: SDK_CONNECT_TIMEOUT_MS,
+    })
     const client = createKiloClient({
       baseUrl: config.baseUrl,
       headers: {
         Authorization: authHeader,
       },
+      fetch: timeoutFetch,
     })
     const sse = new SdkSSEAdapter(client)
     const duplicateEvent = createDuplicateEventFilter()

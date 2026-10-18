@@ -4,7 +4,9 @@ import type { AutocompleteStatusBarStateProps } from "./types"
 import { humanFormatSessionCost, formatTime } from "./statusbar-utils"
 
 const SUPPORTED_PROVIDER_DISPLAY_NAME = "Kilo Gateway"
-const SETTINGS_COMMAND = `command:kilo-code.new.settingsButtonClicked?${encodeURIComponent(JSON.stringify(["autocomplete"]))}`
+// Pass the tab as a plain string (not a JSON array) so the settingsButtonClicked
+// handler receives `tab === "autocomplete"` and opens the Autocomplete settings tab.
+const SETTINGS_COMMAND = `command:kilo-code.new.settingsButtonClicked?${encodeURIComponent("autocomplete")}`
 
 export class AutocompleteStatusBar {
   statusBar: vscode.StatusBarItem

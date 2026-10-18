@@ -19,6 +19,7 @@ const STARTUP_OUTPUT_LIMIT = 1024
 
 type WorkspaceFolderLike = { uri: { fsPath: string } }
 type ServerExitListener = (code: number | null, signal: NodeJS.Signals | null) => void
+type ServerStderrListener = (data: string) => void
 
 export function resolveServerCwd(folders: readonly WorkspaceFolderLike[] | undefined, storage: string): string {
   return folders?.[0]?.uri.fsPath ?? storage
@@ -49,6 +50,7 @@ export class ServerManager {
   constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly onExit?: ServerExitListener,
+    private readonly onStderr?: ServerStderrListener,
     private readonly env?: () => Promise<Record<string, string>>,
   ) {}
 
@@ -196,6 +198,7 @@ export class ServerManager {
         const errorOutput = data.toString()
         console.error("[Kilo New] ServerManager: ⚠️ CLI Server stderr:", errorOutput)
         stderrLines.push(errorOutput)
+        this.onStderr?.(errorOutput)
       })
 
       serverProcess.on("error", (err: NodeJS.ErrnoException) => {

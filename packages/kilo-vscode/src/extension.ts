@@ -47,6 +47,7 @@ import { showAuthUrl } from "./kilo-provider/mcp-oauth"
 
 let agentManager: AgentManagerProvider | undefined
 let caffeination: CaffeinationService | undefined
+let connectionService: KiloConnectionService | undefined
 let shuttingDown = false
 
 const RESTORE_KEY = "kilo.workbench.restore"
@@ -88,10 +89,55 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.window.onDidChangeActiveColorTheme(() => browserBroker.retheme()))
 
   // Create shared connection service (one server for all webviews)
-  const connectionService = new KiloConnectionService(
+  connectionService = new KiloConnectionService(
     context,
     () => browserBroker.env(),
     (dir): Promise<void> => browserAutomationService.ready(dir),
+  )
+
+  // Wire startup error retry: when the CLI server fails to start, the user can
+  // click "Retry" in the VS Code error notification to attempt reconnection.
+  connectionService.setStartupErrorRetry(() => {
+    const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+    if (root) {
+      void connectionService.connect(root)
+    }
+  })
+
+  // Detect extension updates and force-reload webview panels so the new code
+  // takes effect without requiring a manual window reload.
+  const currentVersion = context.extension.packageJSON.version
+  const lastVersion = context.workspaceState.get<string>("kilo-code.new.lastVersion")
+  if (lastVersion && lastVersion !== currentVersion) {
+    // Extension was updated: schedule a webview reload on next activation tick.
+    void vscode.window.showInformationMessage(
+      "Kilo Code has been updated. Reload the window to apply changes.",
+      "Reload Window",
+    ).then((selection) => {
+      if (selection === "Reload Window") {
+        void vscode.commands.executeCommand("workbench.action.reloadWindow")
+      }
+    })
+  }
+  void context.workspaceState.update("kilo-code.new.lastVersion", currentVersion)
+
+  // Subscribe to extension changes to detect updates while running.
+  context.subscriptions.push(
+    vscode.extensions.onDidChange((changes) => {
+      const kiloChanged = changes.some(
+        (ext) => ext.id === "kilocode.Kilo-Code" && ext.packageJSON.version !== currentVersion,
+      )
+      if (kiloChanged) {
+        void vscode.window.showWarningMessage(
+          "Kilo Code has been updated. Please reload the window to apply changes.",
+          "Reload Window",
+        ).then((selection) => {
+          if (selection === "Reload Window") {
+            void vscode.commands.executeCommand("workbench.action.reloadWindow")
+          }
+        })
+      }
+    }),
   )
 
   // One MCP OAuth sign-in service for the whole extension (sidebar, Kilo tabs, Settings, Marketplace).
@@ -717,6 +763,9 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("kilo-code.new.openMcpSettings", (focus?: string) => {
       settingsEditorProvider.openPanel("settings", "agentBehaviour", undefined, "mcpServers", focus)
     }),
+    vscode.commands.registerCommand("kilo-code.new.openAutocompleteSettings", () => {
+      settingsEditorProvider.openPanel("settings", "autocomplete")
+    }),
     vscode.commands.registerCommand("kilo-code.new.showMemory", async () => {
       if (agentManagerProvider.isActive()) {
         await agentManagerProvider.showMemory()
@@ -944,6 +993,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
 export async function deactivate() {
   shuttingDown = true
+  // Kill the shared CLI server process first so the next version (release <-> pre-release)
+  // does not spawn a competing `kilo serve` on the same port, which causes CPU spikes and
+  // race conditions. See docs/error-handling/pre-release-switch-crash.md.
+  void connectionService?.dispose()
   const results = await Promise.allSettled([caffeination?.dispose(), agentManager?.shutdown()])
   for (const result of results) {
     if (result.status === "rejected") console.warn("[Kilo New] Extension shutdown failed:", result.reason)

@@ -1,14 +1,17 @@
-import { AUTOCOMPLETE_MODELS, getAutocompleteModel } from "../../../../src/shared/autocomplete-models"
+import { AUTOCOMPLETE_MODELS, DEFAULT_AUTOCOMPLETE_MODEL, getAutocompleteModel } from "../../../../src/shared/autocomplete-models"
 import type { EnrichedModel } from "../../context/provider"
 
 /**
  * Resolve the (provider, model) pair to the dropdown's value. Returns
- * `null` when neither is set so the selector renders the "Not set" (clear)
- * state via `allowClear`. The runtime resolves unset values to
- * `DEFAULT_AUTOCOMPLETE_MODEL` separately.
+ * the DEFAULT_AUTOCOMPLETE_MODEL as a sensible fallback when neither is
+ * set, so the selector does not render an ambiguous "Not set" state.
+ * Users can still clear to explicit null via the clear button; the runtime
+ * resolves unset values to DEFAULT_AUTOCOMPLETE_MODEL separately.
  */
 export function getAutocompleteSelection(provider?: string, modelID?: string) {
-  if (!provider && !modelID) return null
+  if (!provider && !modelID) {
+    return { providerID: DEFAULT_AUTOCOMPLETE_MODEL.providerID, modelID: DEFAULT_AUTOCOMPLETE_MODEL.modelID }
+  }
   const model = getAutocompleteModel(provider, modelID)
   return { providerID: model.providerID, modelID: model.modelID }
 }

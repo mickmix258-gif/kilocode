@@ -1591,6 +1591,8 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
             await vscode.commands.executeCommand("kilo-code.new.openIndexingSettings")
           } else if (message.tab === "agentBehaviour" && message.subtab === "mcpServers") {
             await vscode.commands.executeCommand("kilo-code.new.openMcpSettings", message.focus)
+          } else if (message.tab === "autocomplete") {
+            await vscode.commands.executeCommand("kilo-code.new.openAutocompleteSettings")
           }
           break
         case "setLanguage":

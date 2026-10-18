@@ -16,6 +16,7 @@ import { Icon } from "@kilocode/kilo-ui/icon"
 import { IconButton } from "@kilocode/kilo-ui/icon-button"
 import { Tooltip } from "@kilocode/kilo-ui/tooltip"
 import { useSession } from "../../context/session"
+import { useServer } from "../../context/server"
 import { useLanguage } from "../../context/language"
 import { useConfig } from "../../context/config"
 import {
@@ -46,9 +47,11 @@ export const PermissionDock: Component<{
   ) => void
 }> = (props) => {
   const session = useSession()
+  const server = useServer()
   const language = useLanguage()
   const { config } = useConfig()
 
+  const workspaceDir = server.workspaceDirectory()
   const fromChild = () => props.request.sessionID !== session.currentSessionID()
   // Skill shell batches are never persisted, so they show no auto-approve rules. The command
   // list is only shown for the bash ask; the sibling external_directory ask (same skillShell
@@ -99,6 +102,17 @@ export const PermissionDock: Component<{
   // Rejecting is a two-step flow: Deny reveals an optional feedback field, then Reject confirms.
   const [rejecting, setRejecting] = createSignal(false)
   const [feedback, setFeedback] = createSignal("")
+
+  // Display the full absolute path for external_directory operations outside the workspace.
+  // For paths inside the workspace, show relative path with a visual indicator.
+  const externalPathDisplay = createMemo(() => {
+    const rulesList = rules()
+    if (!external() || rulesList.length === 0) return undefined
+    const path = rulesList[0]
+    const absPath = path.startsWith("/") ? path : `${workspaceDir}/${path}`.replace(/\/+/g, "/")
+    const isOutsideWorkspace = workspaceDir && !absPath.startsWith(workspaceDir)
+    return { absPath, isOutsideWorkspace }
+  })
 
   let root!: HTMLDivElement
   let feedbackRef: HTMLTextAreaElement | undefined
@@ -326,12 +340,22 @@ export const PermissionDock: Component<{
                               />
                             </Tooltip>
                           </div>
-                          <code data-slot="permission-rule" data-wrap={external() ? "" : undefined} title={text(rule)}>
+                          <code data-slot="permission-rule" data-wrap={external() ? "" : undefined} title={externalPathDisplay()?.absPath ?? text(rule)}>
                             <Show when={external() && rule !== "*"} fallback={text(rule)}>
                               <span data-slot="permission-rule-label">
                                 {language.t("ui.permission.toolLabel.externalDirectory")}{" "}
                               </span>
-                              <span data-slot="permission-rule-path">{rule}</span>
+                              <Show when={externalPathDisplay()}>
+                                {(d) => (
+                                  <span
+                                    data-slot="permission-rule-path"
+                                    data-variant={d.isOutsideWorkspace ? "outside-workspace" : undefined}
+                                    title={d.absPath}
+                                  >
+                                    {d.isOutsideWorkspace ? d.absPath : rule}
+                                  </span>
+                                )}
+                              </Show>
                             </Show>
                           </code>
                         </div>
