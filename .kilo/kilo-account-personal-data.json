@@ -1,0 +1,524 @@
+{
+  "account": {
+    "provider": "kilo",
+    "dataType": "personal",
+    "createdAt": "2026-10-18T04:10:50Z",
+    "source": "Feature Parity Plan — Kilo Code VS Code Extension (Rebuild)",
+    "description": "ข้อมูลส่วนตัวของบัญชี Kilo — ประกอบด้วยงานทั้งหมดจาก Feature Parity Plan, คำสั่ง, คีย์การเข้าถึงเครื่องมือ, การตั้งค่า AI, รูปแบบคำสั่ง, คำแนะนำ, และรูปแบบการทำงานที่เชื่อมโยงกันทั้งหมด ข้ามรูปภาพและคลิปวิดีโอทั้งหมด"
+  },
+
+  "taskInventory": {
+    "totalTasks": 41,
+    "totalEstimatedHours": 614,
+    "lastUpdated": "2026-10-18T04:10:50Z",
+    "sourceDocuments": [
+      "packages/kilo-vscode/README.md",
+      "packages/kilo-vscode/docs/chat-ui-features/",
+      "packages/kilo-vscode/docs/non-agent-features/",
+      "packages/kilo-vscode/docs/agent-behaviour/",
+      "packages/kilo-vscode/docs/ui-polish/",
+      "packages/kilo-vscode/docs/features/",
+      "packages/kilo-vscode/docs/error-handling/",
+      "packages/kilo-vscode/docs/infrastructure/",
+      "packages/kilo-vscode/docs/cli-side/"
+    ],
+    "skippedMediaTypes": ["images", "video clips"],
+    "skipReason": "ระบบไม่เสถียร"
+  },
+
+  "priorityDistribution": {
+    "P0": { "count": 1, "hours": 8 },
+    "P1": { "count": 15, "hours": 198 },
+    "P2": { "count": 17, "hours": 280 },
+    "P3": { "count": 8, "hours": 128 }
+  },
+
+  "tasksSortedByTimeAscending": [
+    {
+      "id": 1,
+      "task": "Profile View Missing Back Button",
+      "category": "UI Polish",
+      "priority": "P2",
+      "hours": 4,
+      "description": "ประเมินว่า editor panel แก้ปัญหาการนำทางแล้วหรือยัง ถ้าไม่ ให้เพิ่มปุ่ม back ใน header ของ Profile view ให้ตรงกับรูปแบบ Settings view"
+    },
+    {
+      "id": 2,
+      "task": "Approval Box Missing Full Path",
+      "category": "UI Polish",
+      "priority": "P1",
+      "hours": 6,
+      "description": "แสดง absolute path เต็มเสมอสำหรับคำขอ permission นอก workspace path ใน workspace ใช้ relative path ได้แต่ต้องมีตัวบ่งชี้ 시각 path นอก workspace ห้ามย่อ ให้แสดง完整 absolute path อาจตัดต้น path ที่ยาวมากด้วย ellipsis"
+    },
+    {
+      "id": 3,
+      "task": "Autocomplete Settings Link Broken",
+      "category": "Error Handling",
+      "priority": "P1",
+      "hours": 6,
+      "description": "แก้ไขลิงก์ settings ในข้อความแจ้งเตือนว่า autocomplete เสีย ให้ไปยัง Autocomplete settings tab ตรวจสอบว่าทำไม model selector แสดง ไม่ได้เลือก model โดยค่าเริ่มต้น เพิ่ม fallback ที่สมเหตุสมผล"
+    },
+    {
+      "id": 4,
+      "task": "Remember Last Model Choice",
+      "category": "Features",
+      "priority": "P2",
+      "hours": 6,
+      "description": "เมื่อเปลี่ยน model ให้บันทึก choice ลง globalState ด้วยคีย์ lastModel เมื่อสร้าง session ใหม่ ให้ preselect model ที่ใช้ล่าสุด fallback ไปยัง default อย่างราบรื่นถ้า model ที่บันทึกไว้ไม่มีอยู่แล้ว"
+    },
+    {
+      "id": 5,
+      "task": "/init Pre-Commit Secret Check",
+      "category": "CLI Side",
+      "priority": "P2",
+      "hours": 6,
+      "description": "ในคำสั่ง /init ของ CLI หลังจากเขียนไฟล์ init แล้ว ให้ตรวจสอบ secret scanning hooks ถ้าไม่มีให้แนะนำ detect-secrets หรือ gitleaks เสนอติดตั้ง detect-secrets เป็นส่วนหนึ่งของ init flow"
+    },
+    {
+      "id": 6,
+      "task": "Pre-Release Switch CPU Spike",
+      "category": "Error Handling",
+      "priority": "P0",
+      "hours": 8,
+      "description": "ตรวจสอบและวัด CPU usage ตอนสลับ release กับ pre-release ตรวจสอบ race conflict ของ port ตรวจสอบว่า deactivate() หยุด server process ก่อนเวอร์ชันใหม่เริ่ม ตรวจสอบ file lock conflict บน state ที่แชร์กัน"
+    },
+    {
+      "id": 7,
+      "task": "Markdown Rendering Improvements",
+      "category": "UI Polish",
+      "priority": "P1",
+      "hours": 8,
+      "description": "เพิ่ม CSS rules สำหรับ heading h1-h6 ให้มีขนาดฟอนต์ น้ำหนัก และระยะแนวตั้งที่แตกต่างจากข้อความธรรมดา ตรวจสอบทุก theme (light, dark, high-contrast)"
+    },
+    {
+      "id": 8,
+      "task": "HTTP Request Timeouts",
+      "category": "Infrastructure",
+      "priority": "P1",
+      "hours": 8,
+      "description": "เพิ่ม request timeout ค่าเริ่มต้น 60s รอบ SDK calls ใน KiloProvider เพิ่ม connect timeout ค่าเริ่มต้น 10s ตรวจสอบว่า timeout ถูกเคลียร์เมื่อตอบสำเร็จ"
+    },
+    {
+      "id": 9,
+      "task": "Plan Mode Over-Prompting",
+      "category": "CLI Side",
+      "priority": "P1",
+      "hours": 8,
+      "description": "ตรวจทาน Plan mode system prompt prompt ต้องชัดเจนว่าใน Plan mode งานของ agent คือช่วยสร้างและ refine plan เท่านั้น ไม่ใช่ implement Should I implement this? ควรถามสูงสุดครั้งเดียว"
+    },
+    {
+      "id": 10,
+      "task": "Chat Input Overflow on Narrow Sidebar",
+      "category": "UI Polish",
+      "priority": "P2",
+      "hours": 8,
+      "description": "ทำให้ chat input toolbar responsive wrap controls ไปยังแถวที่สองเมื่อ sidebar แคบ ปุ่ม send ตองมองเห็นเสมอและยึดอยู่มุมขวาล่าง"
+    },
+    {
+      "id": 11,
+      "task": "Expandable MCP Tools",
+      "category": "Features",
+      "priority": "P2",
+      "hours": 8,
+      "description": "ทำให้ MCP tool call rows ขยายได้ ตรงกับพฤติกรรม expand/collapse ของ tool ทั่วไป แสดง tool name, MCP server name, input arguments, tool output"
+    },
+    {
+      "id": 12,
+      "task": "Session Preview Improvements",
+      "category": "Features",
+      "priority": "P2",
+      "hours": 8,
+      "description": "ประเมินการแสดงข้อความแรกเป็น subtitle ปรับปรุงการสร้างชื่อ แสดงจำนวนข้อความและ timestamp"
+    },
+    {
+      "id": 13,
+      "task": "Dedicated Output Channel",
+      "category": "Infrastructure",
+      "priority": "P2",
+      "hours": 8,
+      "description": "สร้าง vscode.window.createOutputChannel(Kilo Code) logging utility แบบรวมศูนย์ที่มี log levels ส่งข้อความ log ที่ขึ้นต้นด้วย [Kilo New] ไปยัง channel นี้"
+    },
+    {
+      "id": 14,
+      "task": "Show Changelog on Update",
+      "category": "Infrastructure",
+      "priority": "P3",
+      "hours": 8,
+      "description": "เมื่อ activate ให้เปรียบเทียบเวอร์ชันกับ globalState ถ้าเปลี่ยน ให้แสดง notification พร้อม What's New และ Dismiss ไม่แสดงตอนติดตั้งครั้งแรก"
+    },
+    {
+      "id": 15,
+      "task": "Settings Sync Integration",
+      "category": "Non-Agent",
+      "priority": "P3",
+      "hours": 8,
+      "description": "ลงทะเบียน allowlist ของสถานะการตั้งค่า extension สำหรับ VS Code Settings Sync กำหนดว่าตั้งค่าใดควร sync mirror ส่วนหนึ่งเข้าไปใน CLI config"
+    },
+    {
+      "id": 16,
+      "task": "Extension View Doesn't Refresh on Update",
+      "category": "Error Handling",
+      "priority": "P1",
+      "hours": 10,
+      "description": "Subscribe กับ vscode.extensions.onDidChange เมื่อ Kilo Code อัปเดต ให้ force-reload webview panel ตรวจสอบว่า panel ถูก dispose และสร้างใหม่เมื่อ extension host restart"
+    },
+    {
+      "id": 17,
+      "task": "VSCode Error Notifications",
+      "category": "Infrastructure",
+      "priority": "P1",
+      "hours": 10,
+      "description": "แสดง showErrorMessage เมื่อ CLI binary หายหรือ server เริ่มไม่สำเร็จ แสดง showWarningMessage เมื่อ SSE connection หลุด มีปุ่ม Retry"
+    },
+    {
+      "id": 18,
+      "task": "Special Content Types",
+      "category": "Chat UI",
+      "priority": "P1",
+      "hours": 12,
+      "description": "เพิ่ม copy button บน error cards เพิ่ม dedicated MCP tool/resource rows เพิ่ม open markdown preview button"
+    },
+    {
+      "id": 19,
+      "task": "Propagate CLI Errors to UI",
+      "category": "Error Handling",
+      "priority": "P1",
+      "hours": 12,
+      "description": "ดักจับ CLI error output stderr ใน ServerManager / KiloConnectionService แสดง VS Code error notification ฉีดข้อความ error เข้าไปใน chat UI"
+    },
+    {
+      "id": 20,
+      "task": "CLI Startup Errors",
+      "category": "Error Handling",
+      "priority": "P1",
+      "hours": 12,
+      "description": "ตรวจจับ CLI process exit แบบไม่คาดคิดก่อน port จะถูกประกาศ บันทึก last N lines ของ stderr แสดง error notification พร้อม Show Logs และ Retry"
+    },
+    {
+      "id": 21,
+      "task": "Architect Mode / Plan Files",
+      "category": "CLI Side",
+      "priority": "P2",
+      "hours": 12,
+      "description": "หลังจาก plan สรุปแล้ว ให้เขียนเป็นไฟล์ .md ไปยังโฟลเดอร์ /plans ใน project root หรือเพิ่มปุ่ม Export plan ใน Plan mode UI"
+    },
+    {
+      "id": 22,
+      "task": "Publish to OpenVSX",
+      "category": "Infrastructure",
+      "priority": "P3",
+      "hours": 12,
+      "description": "สร้าง OpenVSX publisher account เพิ่มขั้นตอน ovsx publish ลงใน CI/CD pipeline ตั้งค่า OpenVSX token เป็น CI secret"
+    },
+    {
+      "id": 23,
+      "task": "Settings UI",
+      "category": "Non-Agent",
+      "priority": "P1",
+      "hours": 16,
+      "description": "สร้าง Terminal tab (ขณะนี้แสดง Not implemented) สร้าง Prompts tab (ขณะนี้แสดง Not implemented) สร้าง Workflows subtab"
+    },
+    {
+      "id": 24,
+      "task": "Mermaid Diagram Features",
+      "category": "Chat UI",
+      "priority": "P2",
+      "hours": 16,
+      "description": "Mermaid rendering สำหรับ fenced mermaid code blocks ปุ่ม Fix with AI ปุ่ม copy เปิดเป็นไฟล์ PNG"
+    },
+    {
+      "id": 25,
+      "task": "Rules & Workflows (Non-Agent)",
+      "category": "Non-Agent",
+      "priority": "P2",
+      "hours": 16,
+      "description": "สร้าง workflow management UI กำหนดรูปแบบและการดำเนินการของ workflow UI สำหรับเรียกดู .kilocode/rules/"
+    },
+    {
+      "id": 26,
+      "task": "Skills System",
+      "category": "Non-Agent",
+      "priority": "P2",
+      "hours": 16,
+      "description": "ผสานรวม skill execution runtime ใน extension ค้นพบ skills hot-reload เมื่อไฟล์ skill มีการเปลี่ยนแปลง"
+    },
+    {
+      "id": 27,
+      "task": "Rules & Workflows Sub-Tabs",
+      "category": "Agent Behaviour",
+      "priority": "P2/P3",
+      "hours": 16,
+      "description": "Rules: เพิ่มคำอธิบายประกอบ แยก global vs workspace เพิ่มปุ่มเปิดปิดต่อ rule เพิ่มปุ่มสร้างไฟล์ rule ใหม่ Workflows: แทนที่ placeholder ด้วยการจัดการ workflow จริง"
+    },
+    {
+      "id": 28,
+      "task": "File Attachments",
+      "category": "Features",
+      "priority": "P2",
+      "hours": 16,
+      "description": "เพิ่มปุ่มแนบไฟล์ใน chat input toolbar รองรับ drag-and-drop ของไฟล์ที่ไม่ใช่รูปภาพ รองรับ file picker dialog สำหรับไฟล์ข้อความ อ่านเนื้อหาและรวมเป็น text part"
+    },
+    {
+      "id": 29,
+      "task": "Auto-Purge",
+      "category": "Non-Agent",
+      "priority": "P3",
+      "hours": 16,
+      "description": "ทำความสะอาดตามกำหนดการของ storage เก่าสำหรับ task/history ตัดสินใจว่า storage ownership เป็นของ CLI server หรือ extension กำหนดระยะเวลาการเก็บรักษา"
+    },
+    {
+      "id": 30,
+      "task": "Message Editing & Management",
+      "category": "Chat UI",
+      "priority": "P1",
+      "hours": 20,
+      "description": "แก้ไขข้อความผู้ใช้แบบ inline ลบข้อความผู้ใช้จากบทสนทนา คลิกเพื่อแก้ไข แสดง timestamp ส่งข้อความก่อนหน้าซ้ำผ่านปุ่มลูกศรขึ้น แปลง edit/delete เป็น CLI session operations"
+    },
+    {
+      "id": 31,
+      "task": "MCP & MCP Hub",
+      "category": "Non-Agent",
+      "priority": "P1",
+      "hours": 20,
+      "description": "เพิ่มควบคุม add/edit MCP server ใน settings UI อนุญาตปิดใช้งาน tool ต่อ server การเชื่อมต่ออัตโนมัติใหม่และประวัติข้อผิดพลาด MCP Hub"
+    },
+    {
+      "id": 32,
+      "task": "Modes / Agents",
+      "category": "Agent Behaviour",
+      "priority": "P2",
+      "hours": 20,
+      "description": "ฟิลด์ When to Use ระบบ prompt preview Import/Export Default variant ต่อ agent Hidden/disable toggles"
+    },
+    {
+      "id": 33,
+      "task": "MCP Servers Sub-Tab",
+      "category": "Agent Behaviour",
+      "priority": "P2",
+      "hours": 20,
+      "description": "เพิ่ม dialog สำหรับสร้าง MCP server ใหม่ แก้ไข MCP server ที่มีอยู่ ปุ่ม restart/refresh ปุ่มแก้ไขไฟล์ config"
+    },
+    {
+      "id": 34,
+      "task": "Checkpoint & Task Management",
+      "category": "Chat UI",
+      "priority": "P1",
+      "hours": 24,
+      "description": "สร้าง checkpoint restore dialogs checkpoint navigation menu / timeline ดู diff ระหว่าง checkpoints ปุ่ม See New Changes ผสานรวมกับ CLI session undo/redo/fork"
+    },
+    {
+      "id": 35,
+      "task": "Authentication & Enterprise Enforcement",
+      "category": "Non-Agent",
+      "priority": "P1",
+      "hours": 24,
+      "description": "dropdown เลือกระหว่าง org หรือ personal account Organization feature flags MDM policy enforcement"
+    },
+    {
+      "id": 36,
+      "task": "Code Reviews",
+      "category": "Non-Agent",
+      "priority": "P2",
+      "hours": 24,
+      "description": "โหมด Review Mode ในเครื่องสำหรับ AI review การรีวิว เทียบกับฐานที่มาของ branch AI review อัตโนมัติเมื่อ PR เปิด อัปเดต ผสานรวม VS Code review UX"
+    },
+    {
+      "id": 37,
+      "task": "Browser Session Controls",
+      "category": "Chat UI",
+      "priority": "P3",
+      "hours": 24,
+      "description": "ควบคุม browser session ในแชท เริ่ม หยุด นำทาง ปุ่ม replay และควบคุมการกระทำ ดูสกรีนช็อตภายในข้อความแชท"
+    },
+    {
+      "id": 38,
+      "task": "Contribution Tracking",
+      "category": "Non-Agent",
+      "priority": "P3",
+      "hours": 24,
+      "description": "ติดตามการแก้ไขที่ช่วยโดย AI สำหรับการรายงานระดับองค์กร การ diff ที่คำนึงถึงรูปแบบ การ hash ลายนิ้วมือบรรทัด รายงาน UI"
+    },
+    {
+      "id": 39,
+      "task": "Speech-to-Text",
+      "category": "Non-Agent",
+      "priority": "P3",
+      "hours": 24,
+      "description": "การจับเสียงจากไมโครโฟนใน webview การผสานรวม STT แบบสตรีมมิ่ง ปุ่มป้อนข้อมูลด้วยเสียงในพื้นที่พร้อมท์"
+    },
+    {
+      "id": 40,
+      "task": "Cloud Task Support",
+      "category": "Non-Agent",
+      "priority": "P2",
+      "hours": 40,
+      "description": "อัปโหลด ซิงก์ session ในเครื่องขึ้น cloud ซิงก์แบบเรียลไทม์ระหว่างอุปกรณ์ การแก้ไขความขัดแย้งเมื่อ session ถูกแก้ไขบนอุปกรณ์หลายเครื่อง"
+    },
+    {
+      "id": 41,
+      "task": "Codebase Indexing & Semantic Search",
+      "category": "Non-Agent",
+      "priority": "P2",
+      "hours": 40,
+      "description": "การจัดทำดัชนีแบบเวกเตอร์พร้อม embeddings ค้นหเชิงความหมายเหนือคลังรหัส การอัปเดตแบบเพิ่มเติม embedding providers และ storage backends"
+    }
+  ],
+
+  "aiSettings": {
+    "defaultModel": null,
+    "rememberLastModel": true,
+    "autocomplete": {
+      "model": "Mercury Next Edit (Inception)",
+      "enableAutoTrigger": true,
+      "debounceMs": 250,
+      "maxTokens": 512,
+      "debug": false
+    },
+    "planMode": {
+      "antiOverPrompting": true,
+      "askImplementOnce": true
+    },
+    "mercuryNextEdit": {
+      "provider": "Inception Labs",
+      "model": "Mercury Edit 2",
+      "apiKeyEnv": "INCEPTION_API_KEY",
+      "baseUrl": "https://api.inceptionlabs.ai/v1",
+      "sameLineRender": "inline ghost text",
+      "offCursorRender": "decoration with strikethrough + green ghost",
+      "tabSemantics": "first Tab jumps, second Tab applies",
+      "chainPredictions": true
+    }
+  },
+
+  "commandsAndKeys": {
+    "commandPrefix": "kilo-code.new.",
+    "sidebarViewID": "kilo-code.SidebarProvider",
+    "keybindings": {},
+    "vscodeCommands": [
+      "kilo-code.new.openSidebar",
+      "kilo-code.new.openChat",
+      "kilo-code.new.agentManager"
+    ],
+    "cliCommands": [
+      "kilo serve --port 0",
+      "/init"
+    ],
+    "environmentVariables": [
+      "KILO_SERVER_PASSWORD",
+      "INCEPTION_API_KEY",
+      "VSCODE_EXEC_PATH"
+    ]
+  },
+
+  "toolAccess": {
+    "cliBackend": [
+      "agent orchestration",
+      "MCP lifecycle",
+      "tool execution",
+      "search/grep/glob",
+      "session storage",
+      "permissions runtime",
+      "custom commands",
+      "skills",
+      "fast edits"
+    ],
+    "extensionOwns": [
+      "VS Code API integrations",
+      "code actions",
+      "inline completions",
+      "terminal",
+      "SCM",
+      "settings sync",
+      "webview rendering",
+      "auth mediation"
+    ],
+    "webviewProtocols": [
+      "vscode.Webview.postMessage()",
+      "typed messages in webview-ui/src/types/messages.ts"
+    ]
+  },
+
+  "interconnectedWorkPatterns": {
+    "providerHierarchy": [
+      "ThemeProvider",
+      "DialogProvider",
+      "VSCodeProvider",
+      "ServerProvider",
+      "LanguageBridge",
+      "MarkedProvider",
+      "ProviderProvider",
+      "SessionProvider",
+      "DataBridge"
+    ],
+    "featureToBackendMapping": {
+      "CLI owns": [
+        "agent orchestration",
+        "MCP lifecycle",
+        "tool execution",
+        "search/grep/glob",
+        "session storage",
+        "permissions runtime",
+        "custom commands",
+        "skills",
+        "fast edits"
+      ],
+      "Extension owns": [
+        "VS Code API integrations",
+        "webview rendering",
+        "auth mediation"
+      ]
+    },
+    "buildConfiguration": {
+      "extensionBuild": "src/extension.ts -> dist/extension.js (Node/CJS)",
+      "webviewBuild": "webview-ui/src/index.tsx -> dist/webview.js (browser/IIFE)",
+      "agentManagerBuild": "webview-ui/agent-manager/index.tsx -> dist/agent-manager.js"
+    }
+  },
+
+  "recommendations": {
+    "implementationOrder": [
+      "Week 1: P0 และ P1 ที่ใช้เวลาน้อยก่อน (งาน #1-11, #16-22)",
+      "Week 2-3: P1 ที่เหลือ + P2 สำคัญ (งาน #23-33)",
+      "Week 4-6: P2 ขนาดกลางและใหญ่ (งาน #34-39)",
+      "Week 7-8: P3 และโครงสร้างพื้นฐานขนาดใหญ่ (งาน #40-41)"
+    ],
+    "zeroSetupFeatures": [
+      "rememberLastModel",
+      "fileAttachments",
+      "expandableMCPTools",
+      "sessionPreview",
+      "markdownRendering",
+      "approvalBoxFullPath",
+      "profileBackButton",
+      "chatInputNarrowSidebar",
+      "customCommands",
+      "dedicatedOutputChannel",
+      "errorNotifications",
+      "httpTimeouts"
+    ],
+    "securityChecklist": [
+      "Review and tighten CSP",
+      "Validate openExternal URLs",
+      "Audit credential storage",
+      "Audit workspace path containment"
+    ],
+    "reliabilityChecklist": [
+      "VS Code error notifications",
+      "HTTP request timeouts"
+    ],
+    "testingChecklist": [
+      "Test coverage",
+      "Multi-theme visual check",
+      "Multi-platform smoke test"
+    ]
+  },
+
+  "metadata": {
+    "skippedMedia": ["images", "video clips"],
+    "skipReason": "ระบบไม่เสถียร",
+    "generatedBy": "Kilo Software Engineer",
+    "generatedAt": "2026-10-18T04:10:50Z",
+    "workspaceRoot": "/workspace/app",
+    "kiloPackage": "packages/kilo-vscode"
+  }
+}

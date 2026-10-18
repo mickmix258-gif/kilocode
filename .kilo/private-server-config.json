@@ -1,0 +1,141 @@
+{
+  "server": {
+    "type": "private",
+    "provider": "kilo",
+    "createdAt": "2026-10-18T04:10:50Z",
+    "description": "คอนฟิกเซิร์ฟเวอร์ส่วนตัวสำหรับจัดเก็บและซิงก์ข้อมูลงานทั้งหมดจาก Feature Parity Plan รวมถึงคำสั่ง คีย์ การตั้งค่า AI และรูปแบบการทำงานที่เชื่อมโยงกัน ข้ามรูปภาพและคลิปวิดีโอทั้งหมด"
+  },
+
+  "connection": {
+    "host": null,
+    "port": null,
+    "protocol": "https",
+    "auth": {
+      "type": "bearer",
+      "tokenEnv": "KILO_PRIVATE_SERVER_TOKEN"
+    },
+    "timeoutMs": 30000,
+    "retry": {
+      "enabled": true,
+      "maxAttempts": 3,
+      "delayMs": 5000
+    }
+  },
+
+  "storage": {
+    "taskInventory": {
+      "path": "/account/task-inventory.json",
+      "format": "json",
+      "encryptAtRest": false,
+      "autoBackup": true
+    },
+    "personalData": {
+      "path": "/account/personal-data.json",
+      "source": ".kilo/kilo-account-personal-data.json",
+      "syncOnChange": true
+    },
+    "defaultConfig": {
+      "path": "/config/default-config.json",
+      "source": ".kilo/default-config.json",
+      "applyAsPrimary": true,
+      "zeroSetup": true
+    },
+    "logs": {
+      "path": "/logs/server.log",
+      "level": "info",
+      "rotate": true
+    }
+  },
+
+  "services": {
+    "cliBackend": {
+      "binaryPath": "bin/kilo",
+      "serveCommand": "serve --port 0",
+      "autoStart": true,
+      "passwordAuth": true,
+      "retryOnExit": true
+    },
+    "outputChannel": {
+      "name": "Kilo Code",
+      "enabled": true,
+      "levels": ["debug", "info", "warn", "error"]
+    },
+    "errorHandling": {
+      "vscodeNotifications": true,
+      "throttleDuplicateErrors": true,
+      "propagateStderrToUI": true
+    }
+  },
+
+  "features": {
+    "zeroSetup": true,
+    "rememberLastModel": true,
+    "fileAttachments": true,
+    "expandableMCPTools": true,
+    "sessionPreview": true,
+    "markdownRendering": true,
+    "approvalBoxFullPath": true,
+    "profileBackButton": true,
+    "chatInputNarrowSidebar": true,
+    "customCommands": true,
+    "dedicatedOutputChannel": true,
+    "httpTimeouts": true,
+    "errorNotifications": true,
+    "speechToText": false,
+    "autoPurge": false,
+    "cloudTaskSupport": false,
+    "codebaseIndexing": false,
+    "contributionTracking": false,
+    "browserSessionControls": false,
+    "repositoryInitialization": false
+  },
+
+  "security": {
+    "csp": {
+      "styleSrc": "unsafe-inline",
+      "connectSrc": "http://127.0.0.1:* http://localhost:*",
+      "imgSrc": "https:",
+      "scriptSrc": ["wasm-unsafe-eval"],
+      "wsSrc": "localhost ports"
+    },
+    "openExternal": {
+      "allowedSchemes": ["https:", "vscode:"],
+      "allowlist": []
+    },
+    "credentialStorage": {
+      "method": "plaintext JSON with chmod 0600",
+      "recommendation": "Evaluate VS Code SecretStorage API"
+    },
+    "pathContainment": {
+      "checkType": "lexical only",
+      "recommendation": "Consider realpath canonicalization"
+    }
+  },
+
+  "sync": {
+    "accountToServer": {
+      "enabled": false,
+      "direction": "account -> server",
+      "conflictResolution": "manual"
+    },
+    "serverToAccount": {
+      "enabled": false,
+      "direction": "server -> account"
+    }
+  },
+
+  "maintenance": {
+    "autoPurgeEnabled": false,
+    "retentionDays": 30,
+    "userConfirmationRequired": true
+  },
+
+  "metadata": {
+    "skippedMedia": ["images", "video clips"],
+    "skipReason": "ระบบไม่เสถียร",
+    "generatedBy": "Kilo Software Engineer",
+    "generatedAt": "2026-10-18T04:10:50Z",
+    "workspaceRoot": "/workspace/app",
+    "kiloPackage": "packages/kilo-vscode"
+  }
+}

@@ -1,0 +1,266 @@
+{
+  "$schema": "https://kilo.ai/schema/kilo-default-config.json",
+  "comment": "Default configuration for Kilo Code VS Code Extension — zero setup required. Apply this as the primary/default configuration so users do not need to configure anything before use.",
+  "version": "1.0.0",
+  "generatedAt": "2026-10-18T04:10:50Z",
+  "source": "Feature Parity Plan — Kilo Code VS Code Extension (Rebuild)",
+
+  "extension": {
+    "id": "kilocode.Kilo-Code",
+    "activationEvents": [
+      "onCommand:kilo-code.new.openSidebar",
+      "onCommand:kilo-code.new.openChat",
+      "onCommand:kilo-code.new.agentManager"
+    ],
+    "minimumVSCodeVersion": "1.105.1"
+  },
+
+  "cli": {
+    "binaryPath": "bin/kilo",
+    "serveCommand": "serve",
+    "portStrategy": "port 0 (dynamic)",
+    "passwordAuth": true,
+    "autoStartOnActivation": true,
+    "retryOnExit": true,
+    "maxRetries": 3,
+    "retryDelayMs": 2000
+  },
+
+  "connection": {
+    "healthCheckTimeoutMs": 3000,
+    "sseHeartbeatTimeoutMs": 15000,
+    "sdkRequestTimeoutMs": 60000,
+    "sdkConnectTimeoutMs": 10000,
+    "autoReconnect": true,
+    "reconnectIntervalMs": 5000
+  },
+
+  "errorHandling": {
+    "showVscodeNotifications": true,
+    "throttleDuplicateErrors": true,
+    "throttleIntervalMs": 30000,
+    "propagateStderrToUI": true,
+    "injectErrorsIntoChat": true,
+    "startupErrorNotification": true,
+    "sseDisconnectWarning": true
+  },
+
+  "outputChannel": {
+    "name": "Kilo Code",
+    "enabled": true,
+    "logLevels": ["debug", "info", "warn", "error"],
+    "migrateConsoleLogs": true,
+    "disposeOnDeactivation": true
+  },
+
+  "webview": {
+    "reloadOnExtensionUpdate": true,
+    "detectVersionChange": true,
+    "showChangelogOnUpdate": false,
+    "firstInstallSkipChangelog": true,
+    "themeSupport": ["light", "dark", "high-contrast"]
+  },
+
+  "settings": {
+    "ui": {
+      "terminalTab": "implemented",
+      "promptsTab": "implemented",
+      "workflowsSubtab": "implemented"
+    },
+    "sync": {
+      "vscodeSettingsSyncAllowlist": true,
+      "syncExtensionSettings": true,
+      "mirrorToCLIConfig": false
+    }
+  },
+
+  "features": {
+    "fileAttachments": {
+      "enabled": true,
+      "buttonInToolbar": true,
+      "dragAndDrop": true,
+      "filePicker": true,
+      "maxSizeMB": 10,
+      "supportedImageTypes": ["image/png", "image/jpeg", "image/gif", "image/webp"],
+      "showAsChips": true
+    },
+    "rememberLastModel": {
+      "enabled": true,
+      "storageKey": "lastModel",
+      "fallbackToDefault": true
+    },
+    "expandableMCPTools": {
+      "enabled": true,
+      "showInputs": true,
+      "showOutputs": true
+    },
+    "sessionPreview": {
+      "showFirstMessageSnippet": true,
+      "improveTitleGeneration": true,
+      "showMessageCount": true,
+      "showTimestamp": true
+    },
+    "markdownRendering": {
+      "headingStyles": true,
+      "verifyAllThemes": true
+    },
+    "approvalBoxFullPath": {
+      "enabled": true,
+      "showAbsolutePathOutsideWorkspace": true,
+      "ellipsisForLongPaths": true
+    },
+    "profileBackButton": {
+      "enabled": true
+    },
+    "chatInputNarrowSidebar": {
+      "responsiveWrap": true,
+      "sendButtonAnchored": true,
+      "testWidths": [200, 280, 350]
+    },
+    "speechToText": {
+      "enabled": false,
+      "microphoneCapture": false,
+      "streamingSTT": false,
+      "voiceInputButton": false
+    },
+    "autoPurge": {
+      "enabled": false,
+      "retentionDays": 30,
+      "userConfirmationRequired": true
+    },
+    "cloudTaskSupport": {
+      "enabled": false,
+      "realTimeSync": false,
+      "conflictResolution": "manual"
+    },
+    "codeReviews": {
+      "localReviewMode": false,
+      "branchDetection": false,
+      "automatedAIReview": false
+    },
+    "codebaseIndexing": {
+      "enabled": false,
+      "semanticSearch": false,
+      "hybridSearch": false
+    },
+    "customCommands": {
+      "slashCommandHandling": true,
+      "projectLevelDiscovery": true,
+      "yamlFrontmatter": true,
+      "commandPaletteEntry": true
+    },
+    "marketplace": {
+      "catalogBrowsing": false,
+      "installUpdate": false
+    },
+    "mcp": {
+      "addEditServers": true,
+      "toolAllowlisting": true,
+      "autoReconnect": true,
+      "errorHistory": true,
+      "mcpHub": false
+    },
+    "repositoryInitialization": {
+      "enabled": false,
+      "initCommand": false,
+      "scaffoldRulesWorkflows": false
+    },
+    "rulesWorkflows": {
+      "rulesSubtab": true,
+      "workflowsSubtab": false,
+      "globalWorkspaceSeparation": true,
+      "perRuleToggle": true,
+      "autoDiscovery": true
+    },
+    "skillsSystem": {
+      "executionRuntime": false,
+      "discovery": false,
+      "hotReload": false
+    },
+    "contributionTracking": {
+      "enabled": false,
+      "attributionReporting": false
+    },
+    "authentication": {
+      "orgPersonalDropdown": true,
+      "organizationFeatureFlags": true,
+      "mdmPolicyEnforcement": false
+    },
+    "browserSessionControls": {
+      "enabled": false
+    },
+    "checkpointTaskManagement": {
+      "enabled": false,
+      "restoreDialogs": false,
+      "diffViewing": false
+    },
+    "messageEditing": {
+      "inlineEditing": false,
+      "deletion": false,
+      "timestampDisplay": false,
+      "redoPreviousMessage": false
+    },
+    "specialContentTypes": {
+      "copyButtonOnErrorCards": false,
+      "dedicatedMCPRows": false,
+      "openMarkdownPreview": false
+    },
+    "mermaidDiagrams": {
+      "rendering": false,
+      "fixWithAI": false,
+      "copyPNG": false
+    },
+    "modesAgents": {
+      "whenToUse": false,
+      "systemPromptPreview": false,
+      "importExport": false,
+      "defaultVariant": false,
+      "hiddenDisable": false
+    },
+    "mcpServersSubtab": {
+      "addEdit": false,
+      "restartRefresh": false,
+      "expandableDetail": false
+    }
+  },
+
+  "ai": {
+    "defaultModel": null,
+    "rememberLastModel": true,
+    "autocomplete": {
+      "model": "Mercury Next Edit (Inception)",
+      "enableAutoTrigger": true,
+      "debounceMs": 250,
+      "maxTokens": 512,
+      "debug": false
+    },
+    "planMode": {
+      "antiOverPrompting": true,
+      "askImplementOnce": true
+    }
+  },
+
+  "commands": {
+    "prefix": "kilo-code.new.",
+    "viewID": "kilo-code.SidebarProvider",
+    "keybindings": {}
+  },
+
+  "account": {
+    "personalDataPath": "~/.kilo/account/personal-data.json",
+    "autoSync": false,
+    "encryptCredentials": false
+  },
+
+  "privateServer": {
+    "enabled": false,
+    "host": null,
+    "port": null,
+    "auth": null
+  },
+
+  "kilocodeChange": {
+    "markersRequired": false,
+    "note": "All files under packages/kilo-vscode/ are entirely Kilo-specific; kilocode_change markers are NOT needed"
+  }
+}
